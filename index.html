@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0a0c">
+  <meta name="description" content="CODEX PLAYGROUND - Professional browser-based HTML, CSS & JavaScript code editor with live preview">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>CODEX PLAYGROUND</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230a0a0c'/><text x='50' y='68' font-size='50' text-anchor='middle' fill='%2300d4ff'>C</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+  <!-- Monaco Editor -->
+  <link rel="stylesheet" data-name="vs/editor/editor.main" href="https://cdn.jsdelivr.net/npm/monaco-editor@0.52.2/min/vs/editor/editor.main.css">
+  <!-- JSZip -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <!-- FileSaver -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</head>
+<body class="theme-dark">
+  <div id="app">
+    <!-- Header -->
+    <header id="header">
+      <div class="header-left">
+        <div class="logo" title="CODEX PLAYGROUND">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <rect width="28" height="28" rx="6" fill="#00d4ff"/>
+            <path d="M8 9h4v2H8V9zm0 4h8v2H8v-2zm0 4h6v2H8v-2z" fill="#0a0a0c"/>
+            <path d="M18 9l4 5-4 5" stroke="#0a0a0c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="logo-text">CODEX</span>
+        </div>
+        <div class="project-info">
+          <input type="text" id="project-name" value="Untitled Project" spellcheck="false" aria-label="Project name">
+          <span id="save-status" class="save-status">Saved</span>
+        </div>
+      </div>
+      <div class="header-center">
+        <div class="toolbar-group">
+          <button id="btn-run" class="btn btn-primary" title="Run (Ctrl+Enter)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            <span>Run</span>
+          </button>
+          <button id="btn-stop" class="btn btn-secondary" title="Stop">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12"/></svg>
+            <span>Stop</span>
+          </button>
+          <button id="btn-refresh" class="btn btn-secondary" title="Refresh Preview">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+            <span>Refresh</span>
+          </button>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="toolbar-group">
+          <button id="btn-new" class="btn btn-icon" title="New Project">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <button id="btn-save" class="btn btn-icon" title="Save (Ctrl+S)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          </button>
+          <button id="btn-projects" class="btn btn-icon" title="Projects">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+          </button>
+          <button id="btn-templates" class="btn btn-icon" title="Templates">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          </button>
+          <button id="btn-export" class="btn btn-icon" title="Export ZIP">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          </button>
+          <button id="btn-import" class="btn btn-icon" title="Import Project">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+          </button>
+          <button id="btn-format" class="btn btn-icon" title="Format Code (Shift+Alt+F)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h10M4 18h14"/></svg>
+          </button>
+          <button id="btn-theme" class="btn btn-icon" title="Toggle Theme">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          </button>
+          <button id="btn-settings" class="btn btn-icon" title="Settings">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Mobile Tabs -->
+    <nav id="mobile-tabs" class="mobile-only">
+      <button class="tab-btn active" data-tab="html">HTML</button>
+      <button class="tab-btn" data-tab="css">CSS</button>
+      <button class="tab-btn" data-tab="js">JS</button>
+      <button class="tab-btn" data-tab="preview">Preview</button>
+      <button class="tab-btn" data-tab="console">Console</button>
+    </nav>
+
+    <!-- Main Workspace -->
+    <main id="workspace">
+      <!-- Editors Panel -->
+      <div id="editors-panel">
+        <div class="editor-container" id="html-container" data-lang="html">
+          <div class="editor-header">
+            <span class="editor-label"><span class="dot html"></span>HTML</span>
+            <div class="editor-actions">
+              <button class="editor-btn" data-action="copy" data-lang="html" title="Copy">Copy</button>
+              <button class="editor-btn" data-action="download" data-lang="html" title="Download">↓</button>
+              <button class="editor-btn collapse-btn" data-lang="html" title="Collapse">−</button>
+            </div>
+          </div>
+          <div class="editor-wrapper" id="html-editor"></div>
+        </div>
+        <div class="resizer vertical" id="resizer-html-css" data-direction="vertical"></div>
+        <div class="editor-container" id="css-container" data-lang="css">
+          <div class="editor-header">
+            <span class="editor-label"><span class="dot css"></span>CSS</span>
+            <div class="editor-actions">
+              <button class="editor-btn" data-action="copy" data-lang="css" title="Copy">Copy</button>
+              <button class="editor-btn" data-action="download" data-lang="css" title="Download">↓</button>
+              <button class="editor-btn collapse-btn" data-lang="css" title="Collapse">−</button>
+            </div>
+          </div>
+          <div class="editor-wrapper" id="css-editor"></div>
+        </div>
+        <div class="resizer vertical" id="resizer-css-js" data-direction="vertical"></div>
+        <div class="editor-container" id="js-container" data-lang="js">
+          <div class="editor-header">
+            <span class="editor-label"><span class="dot js"></span>JavaScript</span>
+            <div class="editor-actions">
+              <button class="editor-btn" data-action="copy" data-lang="js" title="Copy">Copy</button>
+              <button class="editor-btn" data-action="download" data-lang="js" title="Download">↓</button>
+              <button class="editor-btn collapse-btn" data-lang="js" title="Collapse">−</button>
+            </div>
+          </div>
+          <div class="editor-wrapper" id="js-editor"></div>
+        </div>
+      </div>
+
+      <!-- Horizontal Resizer -->
+      <div class="resizer horizontal" id="resizer-main" data-direction="horizontal"></div>
+
+      <!-- Preview Panel -->
+      <div id="preview-panel">
+        <div class="preview-header">
+          <div class="preview-controls">
+            <button id="btn-viewport-mobile" class="viewport-btn" data-size="375x667" title="Mobile">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
+            </button>
+            <button id="btn-viewport-tablet" class="viewport-btn" data-size="768x1024" title="Tablet">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
+            </button>
+            <button id="btn-viewport-laptop" class="viewport-btn" data-size="1366x768" title="Laptop">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            </button>
+            <button id="btn-viewport-desktop" class="viewport-btn active" data-size="100%" title="Desktop">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            </button>
+            <button id="btn-fullscreen-preview" class="viewport-btn" title="Fullscreen Preview">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg>
+            </button>
+          </div>
+          <div class="preview-url">
+            <span class="url-bar">localhost:preview</span>
+          </div>
+        </div>
+        <div id="preview-frame-wrapper">
+          <iframe id="preview-frame" sandbox="allow-scripts allow-same-origin allow-modals allow-forms allow-popups allow-presentation" title="Live Preview"></iframe>
+        </div>
+        <!-- Console -->
+        <div id="console-panel">
+          <div class="console-header">
+            <span>Console</span>
+            <div>
+              <button id="btn-clear-console" class="editor-btn" title="Clear Console">Clear</button>
+              <button id="btn-toggle-console" class="editor-btn" title="Toggle Console">−</button>
+            </div>
+          </div>
+          <div id="console-output"></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Modals -->
+    <div id="modal-overlay" class="hidden">
+      <!-- Projects Modal -->
+      <div id="projects-modal" class="modal hidden">
+        <div class="modal-header">
+          <h2>Projects</h2>
+          <button class="modal-close" data-modal="projects">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div id="projects-list"></div>
+        </div>
+      </div>
+
+      <!-- Templates Modal -->
+      <div id="templates-modal" class="modal hidden">
+        <div class="modal-header">
+          <h2>Templates</h2>
+          <button class="modal-close" data-modal="templates">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div id="templates-grid"></div>
+        </div>
+      </div>
+
+      <!-- Settings Modal -->
+      <div id="settings-modal" class="modal hidden">
+        <div class="modal-header">
+          <h2>Settings</h2>
+          <button class="modal-close" data-modal="settings">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="setting-group">
+            <label>Font Size</label>
+            <div class="setting-control">
+              <input type="range" id="font-size" min="12" max="24" value="14">
+              <span id="font-size-value">14px</span>
+            </div>
+          </div>
+          <div class="setting-group">
+            <label>Auto-run Preview</label>
+            <label class="switch">
+              <input type="checkbox" id="auto-run" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="setting-group">
+            <label>Debounce Delay (ms)</label>
+            <div class="setting-control">
+              <input type="number" id="debounce-delay" min="100" max="2000" value="400" step="100">
+            </div>
+          </div>
+          <div class="setting-group">
+            <label>Editor Theme</label>
+            <select id="editor-theme">
+              <option value="vs-dark">Dark</option>
+              <option value="vs">Light</option>
+              <option value="hc-black">High Contrast</option>
+            </select>
+          </div>
+          <div class="setting-group">
+            <label>Word Wrap</label>
+            <label class="switch">
+              <input type="checkbox" id="word-wrap" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="setting-group">
+            <label>Minimap</label>
+            <label class="switch">
+              <input type="checkbox" id="minimap">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Confirm Modal -->
+      <div id="confirm-modal" class="modal hidden">
+        <div class="modal-header">
+          <h2 id="confirm-title">Confirm</h2>
+          <button class="modal-close" data-modal="confirm">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p id="confirm-message"></p>
+          <div class="modal-actions">
+            <button id="confirm-cancel" class="btn btn-secondary">Cancel</button>
+            <button id="confirm-ok" class="btn btn-primary">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="hidden"></div>
+
+    <!-- Hidden file input for import -->
+    <input type="file" id="import-file" accept=".zip,.html,.css,.js" multiple class="hidden">
+  </div>
+
+  <!-- Monaco loader -->
+  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.52.2/min/vs/loader.js"></script>
+  <script src="access.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
